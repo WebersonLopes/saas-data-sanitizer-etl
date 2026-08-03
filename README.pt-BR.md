@@ -1,4 +1,4 @@
-# 📊 Automação de ETL para Onboarding e Migração de Clientes SaaS
+# 📊 Automação de ETL para Onboarding e Migração de Clientes em Ambientes SaaS
 
 > **Plataforma Serverless de ETL** desenvolvida para automatizar a validação, sanitização, transformação e preparação de bases de dados de clientes destinadas à migração entre sistemas SaaS, CRM e ERP.
 
