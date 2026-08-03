@@ -1,80 +1,199 @@
-# 📊 SaaS Data Sanitizer & Automated ETL Web App
+# 📊 Customer Data Validation & ETL Pipeline
 
-> **Aplicação Web Serverless** para automação de processos ETL (Extract, Transform, Load), sanitização, validação de integridade e triagem de bases de dados de clientes (CSV/XLSX) para migração entre sistemas SaaS/CRM/ERP.
-
----
-
-## 🎯 O Problema de Negócio
-
-Em rotinas de *onboarding* e migração de sistemas, a equipe operacional gastava cerca de **30 minutos diários por arquivo** realizando a higienização e validação manual de planilhas. 
-
-Esse processo manual gerava gargalos severos de produtividade, além de altos riscos de inconsistência:
-* Inserção de telefones com número incorreto de dígitos.
-* Documentos (CNPJ/CPF) ou e-mails formatados erroneamente.
-* Caracteres invisíveis (BOM/Unicode) que quebravam a carga no banco de dados do CRM.
-* Nomes próprios despadronizados.
+> **Serverless ETL Platform** designed to automate customer data validation, cleansing, transformation and preparation for SaaS, CRM and ERP migrations. The application processes CSV and Excel files, ensuring data quality, reducing manual effort and improving operational efficiency during customer onboarding.
 
 ---
 
-## 🛠️ A Solução Desenvolvida
+# 🚀 Business Problem
 
-Desenvolvimento de um **Web App Full-Stack** que automatiza 100% da cadeia de limpeza, validação estrutural e separação dos dados antes da carga no sistema de destino.
+Customer onboarding and data migration processes required the operations team to manually review and sanitize every spreadsheet before importing it into the destination system.
 
-### 🌟 Diferenciais Técnicos e Funcionalidades:
+Each file demanded approximately **30 minutes** of repetitive manual work, creating operational bottlenecks and increasing the risk of import failures caused by inconsistent data.
 
-1. **Processamento Client-Side de Alta Performance:**
-   * Utilização da biblioteca `SheetJS (XLSX)` para conversão e leitura de arquivos `.xlsx` e `.csv` diretamente no navegador, reduzindo a carga no servidor.
+The most common issues included:
 
-2. **Mapeamento Dinâmico de Colunas (*Fuzzy Matching*):**
-   * Algoritmo de busca por palavras-chave que identifica dinamicamente colunas como *CNPJ, Razão Social, E-mail, Telefone e Nome*, independentemente da ordem em que aparecem na planilha de origem.
+* Invalid phone numbers
+* Incorrect CPF/CNPJ formatting
+* Malformed email addresses
+* Hidden Unicode/BOM characters that prevented successful imports
+* Inconsistent capitalization of customer names
+* Missing mandatory information
 
-3. **Validação Rígida e Sanitização de Dados:**
-   * **Limpeza Unicode:** Remoção automática de caracteres invisíveis (`\uFEFF`, `\u200B`, etc.).
-   * **Validação de Documentos e Contatos:** Verificação de estrutura de e-mails (`@`), comprimento de telefones (10 a 13 dígitos).
-   * **Formatação Inteligente de Nomes:** Normalização de caixa alta/baixa respeitando exceções da língua portuguesa (`da`, `de`, `do`, `dos`).
-
-4. **Triagem e Separação Automática:**
-   * **Dados Válidos:** Arquivo formatado e pronto para importação via API/CSV.
-   * **Dados Incompletos:** Gerados em um arquivo separado com a inclusão dinâmica da coluna `"Motivo da Revisão"`, apontando exatamente onde o usuário precisa corrigir.
-
-5. **Auditoria de Operação (Log Pipeline):**
-   * Registro automático em banco de dados/planilha central das estatísticas do processamento (Data/Hora, Tipo de Processo, Total Lido, Registros Válidos e Incompletos).
+Besides consuming valuable operational time, these inconsistencies directly impacted onboarding quality and customer experience.
 
 ---
 
-## 🚀 Impacto & Resultados de Negócio
+# 💡 Solution
 
-* ⚡ **Redução de 97% no tempo de processamento:** O tempo de execução caiu de **30 minutos para menos de 1 minuto**.
-* 🎯 **100% de Integridade dos Dados:** Erros manuais e falhas de carga no CRM/ERP zerados.
-* 📈 **Ganho de Escala Operacional:** Liberação de horas de trabalho da equipe para foco estratégico em atendimento e retenção de clientes.
+To eliminate manual validation, I designed and implemented a **Serverless ETL Platform** capable of automatically processing customer spreadsheets before they are imported into CRM and SaaS platforms.
 
----
-
-## 💻 Tecnologias Utilizadas
-
-| Camada | Tecnologia / Biblioteca |
-| :--- | :--- |
-| **Frontend** | HTML5, CSS3 Moderno (Flexbox, UI Card Pattern, Gradient UI), JavaScript Assíncrono |
-| **Backend / ETL** | Google Apps Script (JavaScript ES6), Data Parsing, Regex Validation, Base64 Stream |
-| **Bibliotecas** | SheetJS (`xlsx.full.min.js`) |
-| **Formato de Dados** | CSV, XLSX, XLS, Base64 Output |
+The application performs the complete ETL workflow, from file ingestion to validation, data cleansing, classification and export, ensuring that only high-quality records reach the destination system.
 
 ---
 
-## ⚙️ Como Funciona o Fluxo da Aplicação
+# ✨ Key Features
 
-[ Planilha Bruta (XLSX/CSV) ]
-             │
-             ▼
-[ Parser Client-side (SheetJS) ] ──► Limpeza Unicode & Mapeamento Dinâmico
-             │
-             ▼
-[ Validador Regex & Regras ] ────► Separação Válidos vs Incompletos
-             │
-             ▼
-[ Log de Auditoria & Base64 ] ───► Download do CSV Pronto + Painel de Métricas
+## 📂 Client-side File Processing
 
-Autor
-Weberson Lopes
+* Reads CSV, XLS and XLSX files directly in the browser using **SheetJS**
+* Reduces server workload
+* Eliminates file upload latency
 
-Senior Customer Sucess Analyst | CS Ops | RevOps | Process Automation | Data Analytics
+---
+
+## 🔍 Intelligent Column Detection
+
+Instead of relying on fixed column positions, the application dynamically identifies business fields using keyword matching.
+
+Automatically recognizes columns such as:
+
+* Customer Name
+* Company Name
+* CPF/CNPJ
+* Email
+* Phone Number
+
+This allows files from different clients and layouts to be processed without configuration changes.
+
+---
+
+## 🧹 Data Cleansing & Validation
+
+The ETL pipeline automatically performs:
+
+* Unicode/BOM character removal
+* Whitespace normalization
+* Email validation
+* Phone number validation
+* Customer name normalization
+* Field sanitization
+* Data consistency verification
+
+---
+
+## 📋 Automated Data Classification
+
+After validation, records are automatically separated into two datasets:
+
+### ✅ Valid Records
+
+Cleaned, standardized and ready for import.
+
+### ⚠️ Records Requiring Review
+
+Rows containing inconsistencies are exported separately with a dynamically generated **"Review Reason"** column explaining exactly what must be corrected.
+
+This significantly reduces manual review effort.
+
+---
+
+## 📈 Audit Logging
+
+Every execution generates an operational log containing:
+
+* Processing date
+* Processing type
+* Total records processed
+* Valid records
+* Invalid records
+* Processing statistics
+
+This enables operational monitoring and historical tracking of migrations.
+
+---
+
+# 📊 Business Impact
+
+The solution delivered measurable operational improvements:
+
+* ⚡ Reduced processing time by approximately **97%** (from ~30 minutes to under 1 minute per file)
+* 📉 Significantly reduced manual validation errors before data import
+* 🚀 Increased operational scalability by automating repetitive onboarding activities
+* 👥 Enabled Customer Success teams to focus on customer adoption and strategic initiatives instead of repetitive data preparation
+
+---
+
+# 🏗️ Technical Highlights
+
+* Serverless Architecture
+* ETL Pipeline
+* Data Quality Validation
+* Dynamic Schema Detection
+* Browser-side Processing
+* Regex Validation
+* Unicode Sanitization
+* Automated Data Segregation
+* Audit Logging
+* Asynchronous JavaScript
+* Zero-install Deployment
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer           | Technologies                                  |
+| --------------- | --------------------------------------------- |
+| Frontend        | HTML5, CSS3, JavaScript (ES6+)                |
+| Backend         | Google Apps Script                            |
+| Data Processing | ETL Pipeline, Regex Validation, Base64 Stream |
+| Libraries       | SheetJS (xlsx)                                |
+| File Formats    | CSV, XLS, XLSX                                |
+
+---
+
+# 🔄 Application Workflow
+
+```text
+CSV / XLSX File
+        │
+        ▼
+Client-side Parser (SheetJS)
+        │
+        ▼
+Dynamic Column Detection
+        │
+        ▼
+Data Cleansing
+        │
+        ▼
+Validation Rules
+        │
+        ▼
+Data Classification
+        │
+        ├────────► Valid Records
+        │
+        └────────► Records Requiring Review
+                        │
+                        ▼
+               Audit Logging
+                        │
+                        ▼
+          Ready-to-import CSV Output
+```
+
+---
+
+# 🎯 Skills Demonstrated
+
+* ETL Development
+* Data Validation
+* Process Automation
+* Customer Operations
+* Data Quality
+* Serverless Development
+* JavaScript
+* Google Apps Script
+* Business Process Optimization
+* SaaS Operations
+* Workflow Automation
+
+---
+
+# 👨‍💻 Author
+
+**Weberson Lopes**
+
+Senior Customer Success Analyst | Customer Success Operations | Process Automation | Data Analytics
+
+**Tech Stack:** Python • SQL • Google Apps Script • JavaScript • Power BI • ETL • SaaS
