@@ -29,6 +29,7 @@ Besides consuming valuable operational time, these inconsistencies directly impa
 To eliminate manual validation, I designed and implemented a **Serverless ETL Platform** capable of automatically processing customer spreadsheets before they are imported into CRM and SaaS platforms.
 
 The application performs the complete ETL workflow, from file ingestion to validation, data cleansing, classification and export, ensuring that only high-quality records reach the destination system.
+<img width="656" height="410" alt="2026-08-03 17-12-24" src="https://github.com/user-attachments/assets/f082d739-f147-4eab-bea7-b216688021f7" />
 
 ---
 
