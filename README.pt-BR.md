@@ -30,6 +30,7 @@ Além do tempo gasto, essas inconsistências impactavam diretamente a qualidade 
 Para eliminar esse processo manual, desenvolvi uma **Plataforma Serverless de ETL** capaz de processar automaticamente planilhas de clientes antes da importação para sistemas SaaS, CRM e ERP.
 
 A aplicação executa todo o fluxo de preparação dos dados, desde a leitura do arquivo até sua validação, sanitização, classificação e geração dos arquivos finais prontos para importação.
+<img width="656" height="410" alt="2026-08-03 17-12-24" src="https://github.com/user-attachments/assets/0a5dacc1-9d7a-4dcf-8fcb-94a0d1cef018" />
 
 ---
 
