@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(to bottom right, #1e40af 0%, #f0f4f8 50%, #f97316 100%); background-attachment: fixed; min-height: 100vh; padding: 40px 20px; display: flex; justify-content: center; align-items: center; color: #334155; margin: 0; box-sizing: border-box; }
+      .card { background-color: white; padding: 40px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); width: 100%; max-width: 500px; text-align: center; }
+      .logo-integracao { max-width: 220px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+      p { color: #64748b; margin-bottom: 30px; line-height: 1.5; }
+      .file-upload-wrapper { position: relative; width: 100%; height: 140px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; transition: all 0.3s ease; background-color: #f8fafc; margin-bottom: 25px; box-sizing: border-box; }
+      .file-upload-wrapper:hover { border-color: #f97316; background-color: #fffaf5; }
+      .file-upload-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+      .file-icon { font-size: 40px; margin-bottom: 10px; }
+      .file-text { font-weight: 500; color: #475569; }
+      .file-name { font-weight: 700; color: #1e40af; margin-top: 8px; font-size: 14px; word-break: break-all; padding: 0 15px;}
+      .btn { padding: 14px 24px; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s ease; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-sizing: border-box; }
+      .btn:disabled { background-color: #94a3b8 !important; cursor: not-allowed; transform: none !important; box-shadow: none !important;}
+      .btn-process { background-color: #1e40af; box-shadow: 0 4px 6px rgba(30, 64, 175, 0.2); }
+      .btn-process:hover:not(:disabled) { background-color: #1e3a8a; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(30, 64, 175, 0.3); }
+      .btn-download { text-decoration: none; margin-top: 15px; }
+      .btn-success { background-color: #1e40af; box-shadow: 0 4px 6px rgba(30, 64, 175, 0.2); }
+      .btn-success:hover { background-color: #1e3a8a; transform: translateY(-2px); }
+      .btn-contacts { background-color: #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+      .btn-contacts:hover { background-color: #059669; transform: translateY(-2px); }
+      .btn-warning { background-color: #f97316; box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2); color: #fff;}
+      .btn-warning:hover { background-color: #ea580c; transform: translateY(-2px); }
+      .hidden { display: none !important; }
+      .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid white; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      #status { margin-top: 20px; font-weight: 600; font-size: 15px; }
+      .status-error { color: #ef4444; }
+      .status-success { color: #1e40af; } 
+      hr { margin: 35px 0 25px 0; border: 0; border-top: 1px solid #e2e8f0; }
+      h3 { color: #1e293b; margin-top: 0; font-size: 18px;}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img src="https://cdn-icons-png.flaticon.com/512/1067/1067080.png" alt="Integração De sistemas ERP" class="logo-integracao">
+      
+      <p>Gentileza anexar a planilha nos formatos (<b>XLSX ou CSV</b>) para separar os dados completos dos dados incompletos automaticamente.</p>
+      <p>Obs: Para retirada da planilha acesse a aba: <b>Relatórios / Exportar e-mails p CSV.</b></p>
+      
+      <div class="file-upload-wrapper" id="dropZone">
+        <div class="file-icon">📊</div>
+        <div class="file-text" id="fileText">Clique ou arraste o ficheiro (XLSX, XLS ou CSV)</div>
+        <div class="file-name" id="fileNameDisplay" class="hidden"></div>
+        <input type="file" id="fileInput" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onchange="updateFileName()" />
+      </div>
+      
+      <button class="btn btn-process" id="btnProcessar" onclick="processFile()">
+        <span id="btnText">✨ Processar Dados</span>
+        <div id="loadingSpinner" class="spinner hidden"></div>
+      </button>
+      
+      <div id="status"></div>
+      
+      <div id="downloadSection" class="hidden">
+        <hr>
+        <h3>Downloads Prontos 🎉</h3>
+        <a id="btnCompletas" class="btn btn-download btn-success" href="#" download="Dados_Completos.csv">
+          📥 Baixar Dados Completos
+        </a>
+        <a id="btnSomenteContatos" class="btn btn-download btn-contacts" href="#" download="Somente_Contatos.csv">
+          📱 Baixar Somente Contatos
+        </a>
+        <a id="btnIncompletas" class="btn btn-download btn-warning" href="#" download="Dados_Incompletos_Revisar.csv">
+          ⚠️ Baixar Incompletos (Para Revisão)
+        </a>
+      </div>
+    </div>
+
+    <script>
+      function updateFileName() {
+        var input = document.getElementById('fileInput');
+        var nameDisplay = document.getElementById('fileNameDisplay');
+        var defaultText = document.getElementById('fileText');
+        if (input.files.length > 0) {
+          nameDisplay.innerText = input.files[0].name;
+          nameDisplay.classList.remove('hidden');
+          defaultText.style.display = 'none';
+        } else {
+          nameDisplay.innerText = '';
+          nameDisplay.classList.add('hidden');
+          defaultText.style.display = 'block';
+        }
+      }
+
+      function processFile() {
+        var fileInput = document.getElementById('fileInput');
+        var btnProcessar = document.getElementById('btnProcessar');
+        var btnText = document.getElementById('btnText');
+        var spinner = document.getElementById('loadingSpinner');
+        var statusDiv = document.getElementById('status');
+        var downloadSection = document.getElementById('downloadSection');
+
+        if (fileInput.files.length === 0) {
+          statusDiv.innerHTML = '<span class="status-error">❌ Por favor, selecione um ficheiro primeiro.</span>';
+          return;
+        }
+        
+        var file = fileInput.files[0];
+        var isExcel = file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls');
+        var reader = new FileReader();
+        
+        btnProcessar.disabled = true;
+        btnText.innerText = 'Processando...';
+        spinner.classList.remove('hidden');
+        statusDiv.innerHTML = '';
+        downloadSection.classList.add('hidden');
+        
+        function enviarParaServidor(textoLido) {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              if(!result) {
+                 showError('Erro ao processar o ficheiro.');
+                 return;
+              }
+              
+              var btnCompletas = document.getElementById('btnCompletas');
+              var btnSomenteContatos = document.getElementById('btnSomenteContatos');
+              var btnIncompletas = document.getElementById('btnIncompletas');
+
+              btnCompletas.classList.add('hidden');
+              btnSomenteContatos.classList.add('hidden');
+              btnIncompletas.classList.add('hidden');
+
+              if (result.isPlanilhaReduzida) {
+                var totalLinhas = result.qtdContatos + result.qtdIncompletas;
+                
+                if (result.qtdContatos > 0) {
+                  btnSomenteContatos.href = "data:text/csv;charset=utf-8;base64," + result.somenteContatos;
+                  btnSomenteContatos.classList.remove('hidden');
+                }
+                
+                var painelEstatistica = 
+                  '<div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">' +
+                    '<p style="margin: 0 0 10px 0; color: #1e293b; font-weight: bold; font-size: 15px;">📱 Resumo dos Contatos:</p>' +
+                    '<ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">' +
+                      '<li>Total analisado: <b>' + totalLinhas + ' contatos</b></li>' +
+                      '<li>✅ Válidos e prontos: <b style="color: #10b981;">' + result.qtdContatos + '</b></li>' +
+                      '<li>⚠️ Precisam de correção: <b style="color: #f59e0b;">' + result.qtdIncompletas + '</b></li>' +
+                    '</ul>' +
+                  '</div>';
+
+                if (result.temIncompletas) {
+                  btnIncompletas.href = "data:text/csv;charset=utf-8;base64," + result.incompletas;
+                  btnIncompletas.innerText = "⚠️ Baixar Contatos Inválidos (Para Revisão)";
+                  btnIncompletas.classList.remove('hidden');
+                  statusDiv.innerHTML = '<span class="status-success" style="font-size: 16px;">✅ Leitura de contatos concluída!</span>' + painelEstatistica;
+                } else {
+                  statusDiv.innerHTML = '<span class="status-success" style="font-size: 16px;">✅ Todos os contatos estão perfeitos!</span>' + painelEstatistica;
+                }
+
+              } else {
+                var totalLinhas = result.qtdCompletas + result.qtdIncompletas;
+                
+                if (result.qtdCompletas > 0) {
+                  btnCompletas.href = "data:text/csv;charset=utf-8;base64," + result.completas;
+                  btnCompletas.classList.remove('hidden');
+                }
+
+                var painelEstatistica = 
+                  '<div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; border-left: 4px solid #1e40af; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">' +
+                    '<p style="margin: 0 0 10px 0; color: #1e293b; font-weight: bold; font-size: 15px;">📊 Resumo da Triagem Completa:</p>' +
+                    '<ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">' +
+                      '<li>Total analisado: <b>' + totalLinhas + ' empresas</b></li>' +
+                      '<li>✅ Prontos para uso: <b style="color: #10b981;">' + result.qtdCompletas + '</b></li>' +
+                      '<li>⚠️ Precisam de revisão: <b style="color: #f59e0b;">' + result.qtdIncompletas + '</b></li>' +
+                    '</ul>' +
+                  '</div>';
+
+                if (result.temIncompletas) {
+                  btnIncompletas.href = "data:text/csv;charset=utf-8;base64," + result.incompletas;
+                  btnIncompletas.innerText = "⚠️ Baixar Incompletos (Para Revisão)";
+                  btnIncompletas.classList.remove('hidden');
+                  statusDiv.innerHTML = '<span class="status-success" style="font-size: 16px;">✅ Processamento concluído!</span>' + painelEstatistica;
+                } else {
+                  statusDiv.innerHTML = '<span class="status-success" style="font-size: 16px;">✅ Tudo perfeito! Planilha completa disponível para download.</span>' + painelEstatistica;
+                }
+              }
+              
+              downloadSection.classList.remove('hidden');
+              resetButton();
+            })
+            .withFailureHandler(function(error){
+               var mensagemLimpa = error.message.replace('Error: ', '');
+               showError(mensagemLimpa);
+            })
+            .processCsvData(textoLido);
+        }
+
+        if (isExcel) {
+          reader.onload = function(e) {
+            try {
+              var data = new Uint8Array(e.target.result);
+              var workbook = XLSX.read(data, {type: 'array'});
+              var firstSheetName = workbook.SheetNames[0];
+              var worksheet = workbook.Sheets[firstSheetName];
+              var csvContent = XLSX.utils.sheet_to_csv(worksheet, {FS: ";"});
+              enviarParaServidor(csvContent);
+            } catch(err) {
+               showError("Não foi possível ler este ficheiro Excel.");
+            }
+          };
+          reader.readAsArrayBuffer(file); 
+        } else {
+          reader.onload = function(e) {
+            enviarParaServidor(e.target.result);
+          };
+          reader.readAsText(file, 'UTF-8'); 
+        }
+        
+        function showError(msg) {
+          statusDiv.innerHTML = '<span class="status-error">❌ ' + msg + '</span>';
+          resetButton();
+        }
+
+        function resetButton() {
+          btnProcessar.disabled = false;
+          btnText.innerText = '✨ Processar Novamente';
+          spinner.classList.add('hidden');
+        }
+      }
+    </script>
+  </body>
+</html>
