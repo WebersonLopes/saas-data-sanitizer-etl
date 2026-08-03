@@ -1,4 +1,4 @@
-# 📊 Pipeline ETL para Validação e Sanitização de Dados de Clientes
+# 📊 Automação de ETL para Onboarding e Migração de Clientes SaaS
 
 > **Plataforma Serverless de ETL** desenvolvida para automatizar a validação, sanitização, transformação e preparação de bases de dados de clientes destinadas à migração entre sistemas SaaS, CRM e ERP.
 
