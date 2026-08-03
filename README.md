@@ -1,8 +1,6 @@
 # 📊 Customer Data Validation & ETL Pipeline
 🇧🇷 [Leia em Português](README.pt-BR.md)
 
-🇺🇸 [Read in English](README.md)
-
 > **Serverless ETL Platform** designed to automate customer data validation, cleansing, transformation and preparation for SaaS, CRM and ERP migrations. The application processes CSV and Excel files, ensuring data quality, reducing manual effort and improving operational efficiency during customer onboarding.
 
 ---
